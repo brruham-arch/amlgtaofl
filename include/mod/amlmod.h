@@ -12,13 +12,7 @@ extern IAML* aml;
         } \
         __attribute__((visibility("default"))) \
         void __INeedASpecificGame() {} \
-    } \
-    struct __AMLInit { \
-        __AMLInit() { \
-            aml = (IAML*)GetInterface("AMLInterface"); \
-        } \
-    }; \
-    static __AMLInit __amlInit __attribute__((init_priority(101)));
+    }
 
 #define ON_MOD_PRELOAD() \
     extern "C" __attribute__((visibility("default"))) void OnModPreLoad()

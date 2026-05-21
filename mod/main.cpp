@@ -1,5 +1,6 @@
 #include <android/log.h>
 #include <stdio.h>
+#include <dlfcn.h>
 #include "mod/amlmod.h"
 
 #define TAG     "NPCFight"
@@ -21,11 +22,17 @@ ON_MOD_PRELOAD() {
 
 ON_MOD_LOAD() {
     logf("[NPCFight] OnModLoad start");
-    if (aml) {
-        aml->ShowToast(false, "[NPCFight] Mod loaded!");
-        logf("[NPCFight] ShowToast called");
-    } else {
-        logf("[NPCFight] WARNING: aml is null");
-    }
+
+    void* hAML = dlopen("libAML.so", RTLD_NOW | RTLD_NOLOAD);
+    if (!hAML) { logf("[NPCFight] ERROR: libAML.so not found"); return; }
+
+    auto getIface = (void*(*)(const char*))dlsym(hAML, "GetInterface");
+    if (!getIface) { logf("[NPCFight] ERROR: GetInterface not found"); return; }
+
+    aml = (IAML*)getIface("AMLInterface");
+    if (!aml) { logf("[NPCFight] ERROR: aml null"); return; }
+
+    logf("[NPCFight] aml OK");
+    aml->ShowToast(false, "[NPCFight] Mod loaded!");
     logf("[NPCFight] OnModLoad done");
 }

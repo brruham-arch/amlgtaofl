@@ -1,11 +1,10 @@
 #include <android/log.h>
 #include <stdio.h>
-#include <dlfcn.h>
-#include "mod/amlmod.h"
 
 #define TAG     "NPCFight"
 #define LOGFILE "/storage/emulated/0/npcfight_log.txt"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, TAG, __VA_ARGS__)
+#define EXPORT  __attribute__((visibility("default")))
 
 static void logf(const char* msg) {
     FILE* f = fopen(LOGFILE, "a");
@@ -13,26 +12,21 @@ static void logf(const char* msg) {
     LOGI("%s", msg);
 }
 
-MYMOD(com.brruham.npcfight, NPCFight, 1.0, brruham)
+extern "C" {
 
-ON_MOD_PRELOAD() {
-    remove(LOGFILE);
-    logf("[NPCFight] OnModPreLoad");
+EXPORT const char* __GetModInfo() {
+    return "com.brruham.npcfight|1.0|NPCFight|brruham";
 }
 
-ON_MOD_LOAD() {
-    logf("[NPCFight] OnModLoad start");
+EXPORT void __INeedASpecificGame() {}
 
-    void* hAML = dlopen("libAML.so", RTLD_NOW | RTLD_NOLOAD);
-    if (!hAML) { logf("[NPCFight] ERROR: libAML.so not found"); return; }
+EXPORT void OnModPreLoad() {
+    remove(LOGFILE);
+    logf("[NPCFight] OnModPreLoad OK");
+}
 
-    auto getIface = (void*(*)(const char*))dlsym(hAML, "GetInterface");
-    if (!getIface) { logf("[NPCFight] ERROR: GetInterface not found"); return; }
+EXPORT void OnModLoad() {
+    logf("[NPCFight] OnModLoad OK");
+}
 
-    aml = (IAML*)getIface("AMLInterface");
-    if (!aml) { logf("[NPCFight] ERROR: aml null"); return; }
-
-    logf("[NPCFight] aml OK");
-    aml->ShowToast(false, "[NPCFight] Mod loaded!");
-    logf("[NPCFight] OnModLoad done");
 }

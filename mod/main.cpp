@@ -1,9 +1,10 @@
 #include <android/log.h>
+#include <stdio.h>
 #include "mod/amlmod.h"
 
-#define TAG "NPCFight"
-#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, TAG, __VA_ARGS__)
+#define TAG     "NPCFight"
 #define LOGFILE "/storage/emulated/0/npcfight_log.txt"
+#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, TAG, __VA_ARGS__)
 
 static void logf(const char* msg) {
     FILE* f = fopen(LOGFILE, "a");
@@ -15,11 +16,16 @@ MYMOD(com.brruham.npcfight, NPCFight, 1.0, brruham)
 
 ON_MOD_PRELOAD() {
     remove(LOGFILE);
-    logf("[NPCFight] OnModPreLoad called");
+    logf("[NPCFight] OnModPreLoad");
 }
 
 ON_MOD_LOAD() {
-    logf("[NPCFight] OnModLoad called");
-    aml->ShowToast(false, "[NPCFight] Mod loaded!");
-    logf("[NPCFight] OnModLoad DONE");
+    logf("[NPCFight] OnModLoad start");
+    if (aml) {
+        aml->ShowToast(false, "[NPCFight] Mod loaded!");
+        logf("[NPCFight] ShowToast called");
+    } else {
+        logf("[NPCFight] WARNING: aml is null");
+    }
+    logf("[NPCFight] OnModLoad done");
 }
